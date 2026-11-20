@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Project
+      - name: Checkout
         uses: actions/checkout@v5
 
       - name: Setup Java
@@ -34,12 +34,25 @@ jobs:
           mkdir project
           unzip -q nov-20-2026-1-57-22-pm.zip -d project
 
+      - name: Create Debug Keystore
+        run: |
+          keytool -genkeypair \
+            -v \
+            -keystore project/debug.keystore \
+            -storepass android \
+            -alias androiddebugkey \
+            -keypass android \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -dname "CN=Android Debug,O=Android,C=US"
+
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '9.3.1'
 
-      - name: Build Nibras
+      - name: Build APK
         run: |
           cd project
           gradle assembleDebug --no-daemon
