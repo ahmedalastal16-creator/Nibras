@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download Project
+      - name: Checkout Project
         uses: actions/checkout@v5
 
       - name: Setup Java
@@ -29,31 +29,25 @@ jobs:
         with:
           packages: 'platform-tools'
 
-      - name: Extract Nibras
+      - name: Extract Project
         run: |
-          mkdir -p project
+          mkdir project
           unzip -q nov-20-2026-1-57-22-pm.zip -d project
 
-      - name: Find Gradle Project
-        run: |
-          echo "Searching for Gradle wrapper..."
-          find project -name gradlew -type f
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.3.1'
 
-      - name: Build APK
+      - name: Build Nibras
         run: |
-          GRADLEW=$(find project -name gradlew -type f | head -n 1)
-          if [ -z "$GRADLEW" ]; then
-            echo "ERROR: Gradle wrapper not found"
-            exit 1
-          fi
-          cd "$(dirname "$GRADLEW")"
-          chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          cd project
+          gradle assembleDebug --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: Nibras-APK
-          path: project/**/build/outputs/apk/debug/*.apk
+          path: project/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
           
