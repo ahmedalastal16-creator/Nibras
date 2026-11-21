@@ -31,13 +31,17 @@ jobs:
 
       - name: Extract Project
         run: |
-          mkdir project
-          unzip -q nov-20-2026-1-57-22-pm.zip -d project
+          mkdir -p project
+          ZIP_FILE=$(find . -maxdepth 2 -type f -iname "*.zip" | head -n 1)
+          if [ -z "$ZIP_FILE" ]; then
+            echo "No project ZIP found"
+            exit 1
+          fi
+          unzip -q "$ZIP_FILE" -d project
 
       - name: Create Debug Keystore
         run: |
           keytool -genkeypair \
-            -v \
             -keystore project/debug.keystore \
             -storepass android \
             -alias androiddebugkey \
